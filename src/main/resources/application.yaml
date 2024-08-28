@@ -1,0 +1,4 @@
+spring:
+  port: 8000
+  grpc-port: 9090
+

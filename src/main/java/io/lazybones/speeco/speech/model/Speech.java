@@ -1,5 +1,6 @@
 package io.lazybones.speeco.speech.model;
 
+import io.lazybones.speeco.common.model.Speaker;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,9 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpeechResponse {
+public class Speech {
   private Speaker speaker;
-  private String text;
   private byte[] audio;
-  private Boolean done;
+  private String text;
 }

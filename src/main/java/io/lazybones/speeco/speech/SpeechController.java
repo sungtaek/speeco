@@ -1,17 +1,27 @@
 package io.lazybones.speeco.speech;
 
+import java.util.ArrayList;
+
 import org.springframework.stereotype.Controller;
 
 import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
 import io.lazybones.speeco.common.GrpcBidiReactiveStream;
+import io.lazybones.speeco.common.Util;
+import io.lazybones.speeco.common.model.Coach;
+import io.lazybones.speeco.common.model.Conversation;
+import io.lazybones.speeco.common.model.Speaker;
+import io.lazybones.speeco.common.model.User;
+import io.lazybones.speeco.grpc.SpeechRequest;
+import io.lazybones.speeco.grpc.SpeechResponse;
 import io.lazybones.speeco.grpc.SpeecoInterfaceGrpc.SpeecoInterfaceImplBase;
-import io.lazybones.speeco.speech.model.Speaker;
-import io.lazybones.speeco.speech.model.SpeechRequest;
-import io.lazybones.speeco.speech.model.SpeechResponse;
+import io.lazybones.speeco.speech.model.Speech;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
+@Slf4j
 public class SpeechController extends SpeecoInterfaceImplBase {
 
   private final SpeechService speechService;
@@ -21,39 +31,63 @@ public class SpeechController extends SpeecoInterfaceImplBase {
   }
 
   @Override
-  public StreamObserver<io.lazybones.speeco.grpc.SpeechRequest> speech(StreamObserver<io.lazybones.speeco.grpc.SpeechResponse> responseObserver) {
+  public StreamObserver<SpeechRequest> speech(StreamObserver<SpeechResponse> responseObserver) {
+    Conversation conversation = Conversation.builder()
+        .id("conv-0001")
+        .user(User.builder()
+            .name("user")
+            .build())
+        .coach(Coach.builder()
+            .name("coach")
+            .gender("M")
+            .model("teacher")
+            .language("en")
+            .voice("larynx:southern_english_male-glow_tts")
+            .build())
+        .messages(new ArrayList<>())
+        .build();
     return new GrpcBidiReactiveStream<>(responseObserver,
         reqFlux -> {
           return reqFlux
-              .map(this::convertRequest)
-              .transform(speechService::speech)
-              .map(this::convertResponse);
+              .doOnNext(r -> log.info("Receive: {}", Util.toLogString(r)))
+              .mapNotNull(this::convertRequest)
+              .transform(speechFlux -> speechService.speech(conversation, speechFlux))
+              .map(this::convertResponse)
+              .doOnNext(r -> log.info("Return: {}", Util.toLogString(r)))
+              .doOnError(err -> log.error("Error: " + err.getMessage(), err))
+              .doOnComplete(() -> log.info("Completed"))
+              ;
         });
   }
 
-  private SpeechRequest convertRequest(io.lazybones.speeco.grpc.SpeechRequest req) {
-    return SpeechRequest.builder()
-        .audio(req.toByteArray())
-        .done(req.getDone())
-        .build();
-  }
-
-  private io.lazybones.speeco.grpc.SpeechResponse convertResponse(SpeechResponse resp) {
-    return io.lazybones.speeco.grpc.SpeechResponse.newBuilder()
-        .setSpeaker(convertSpeaker(resp.getSpeaker()))
-        .setAudio(ByteString.copyFrom(resp.getAudio()))
-        .setDone(resp.getDone())
-        .build();
-  }
-
-  private io.lazybones.speeco.grpc.Speaker convertSpeaker(Speaker speaker) {
-    switch (speaker) {
-      case USER:
-        return io.lazybones.speeco.grpc.Speaker.USER;
-      case COACH:
-        return io.lazybones.speeco.grpc.Speaker.COACH;
+  private Speech convertRequest(SpeechRequest req) {
+    io.lazybones.speeco.grpc.Speech userSpeech = req.getUserSpeech();
+    if (userSpeech != null) {
+      return Speech.builder()
+          .speaker(Speaker.USER)
+          .audio(userSpeech.getAudio() != null ? userSpeech.getAudio().toByteArray() : null)
+          .text(userSpeech.getText())
+          .build();
+    } else {
+      return null;
     }
-    return io.lazybones.speeco.grpc.Speaker.UNRECOGNIZED;
+  }
+
+  private SpeechResponse convertResponse(Speech resp) {
+    if (resp.getSpeaker() == Speaker.USER) {
+      return SpeechResponse.newBuilder()
+          .setUserSpeech(io.lazybones.speeco.grpc.Speech.newBuilder()
+              .setText(resp.getText())
+              .build())
+          .build();
+    } else {
+      return SpeechResponse.newBuilder()
+          .setCoachSpeech(io.lazybones.speeco.grpc.Speech.newBuilder()
+              .setAudio(ByteString.copyFrom(resp.getAudio()))
+              .setText(resp.getText())
+              .build())
+          .build();
+    }
   }
 
 }

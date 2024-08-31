@@ -1,4 +1,4 @@
-package io.lazybones.speeco.speech.model;
+package io.lazybones.speeco.llm.ollama;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class SpeechRequest {
-  private byte[] audio;
-  private Boolean done;
+@NoArgsConstructor
+public class ChatMessage {
+  private String role;
+  private String content;
 }

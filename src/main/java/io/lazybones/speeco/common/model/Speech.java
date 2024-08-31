@@ -1,6 +1,5 @@
-package io.lazybones.speeco.speech.model;
+package io.lazybones.speeco.common.model;
 
-import io.lazybones.speeco.common.model.Speaker;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

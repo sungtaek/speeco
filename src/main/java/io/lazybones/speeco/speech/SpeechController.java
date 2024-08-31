@@ -12,12 +12,11 @@ import io.lazybones.speeco.common.Util;
 import io.lazybones.speeco.common.model.Coach;
 import io.lazybones.speeco.common.model.Conversation;
 import io.lazybones.speeco.common.model.Speaker;
+import io.lazybones.speeco.common.model.Speech;
 import io.lazybones.speeco.common.model.User;
 import io.lazybones.speeco.grpc.SpeechRequest;
 import io.lazybones.speeco.grpc.SpeechResponse;
 import io.lazybones.speeco.grpc.SpeecoInterfaceGrpc.SpeecoInterfaceImplBase;
-import io.lazybones.speeco.speech.model.Speech;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Controller

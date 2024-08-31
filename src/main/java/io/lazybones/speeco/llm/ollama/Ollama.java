@@ -2,6 +2,7 @@ package io.lazybones.speeco.llm.ollama;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -54,7 +55,11 @@ public class Ollama implements LLM {
             sb.append(text.replaceAll("\n+$", ""));
             text = sb.toString();
             sb.setLength(0);
-            return text;
+            if (StringUtils.isNotBlank(text)) {
+              return text;
+            } else {
+              return null;
+            }
           } else {
             sb.append(text);
             return null;

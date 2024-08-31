@@ -1,5 +1,6 @@
 package io.lazybones.speeco.common.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Builder;
@@ -12,4 +13,12 @@ public class Conversation {
   private User user;
   private Coach coach;
   private List<Message> messages;
+  
+  public List<Message> addSpeech(Speech speech) {
+    if (messages == null) {
+      messages = new ArrayList<>();
+    }
+    messages.add(new Message(speech.getSpeaker(), speech.getText()));
+    return messages;
+  }
 }

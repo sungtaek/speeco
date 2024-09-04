@@ -5,6 +5,7 @@ import java.util.List;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.Builder.Default;
 
 @Data
 @Builder
@@ -12,12 +13,14 @@ public class Conversation {
   private String id;
   private User user;
   private Coach coach;
-  private List<Message> messages;
+  @Default
+  private List<Message> messages = new ArrayList<>();
+  @Default
+  private Boolean useAsr = false;
+  @Default
+  private Boolean useTts = false;
   
   public List<Message> addSpeech(Speech speech) {
-    if (messages == null) {
-      messages = new ArrayList<>();
-    }
     messages.add(new Message(speech.getSpeaker(), speech.getText()));
     return messages;
   }

@@ -73,18 +73,21 @@ public class SpeechController extends SpeecoInterfaceImplBase {
   }
 
   private SpeechResponse convertResponse(Speech resp) {
+    io.lazybones.speeco.grpc.Speech.Builder speechBuilder = io.lazybones.speeco.grpc.Speech.newBuilder();
+    if (resp.getAudio() != null) {
+      speechBuilder.setAudio(ByteString.copyFrom(resp.getAudio()));
+    }
+    if (resp.getText() != null) {
+      speechBuilder.setText(resp.getText());
+    }
+
     if (resp.getSpeaker() == Speaker.USER) {
       return SpeechResponse.newBuilder()
-          .setUserSpeech(io.lazybones.speeco.grpc.Speech.newBuilder()
-              .setText(resp.getText())
-              .build())
+          .setUserSpeech(speechBuilder)
           .build();
     } else {
       return SpeechResponse.newBuilder()
-          .setCoachSpeech(io.lazybones.speeco.grpc.Speech.newBuilder()
-              .setAudio(ByteString.copyFrom(resp.getAudio()))
-              .setText(resp.getText())
-              .build())
+          .setCoachSpeech(speechBuilder)
           .build();
     }
   }

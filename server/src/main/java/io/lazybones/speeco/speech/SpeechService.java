@@ -29,43 +29,56 @@ public class SpeechService {
     this.tts = tts;
   }
 
+  public Flux<Speech> speech(Conversation conversation, Flux<Speech> userSpeechFlux) {
+    return Flux.concat(
+      recognizeUserSpeech(conversation, userSpeechFlux),
+      Flux.defer(() -> requestCoach(conversation)));
+  }
+
   @Data
-  private static class Context {
+  private static class RecognizeContext {
     private Speech lastUserSpeech;
   }
 
-  public Flux<Speech> speech(Conversation conversation, Flux<Speech> userSpeechFlux) {
-    Context context = new Context();
-    return Flux.concat(
-        recognizeUserSpeech(userSpeechFlux)
-            .doOnNext(context::setLastUserSpeech)
-            .doOnComplete(() -> conversation.addSpeech(context.getLastUserSpeech())),
-        Flux.defer(() -> requestCoach(conversation)));
-  }
-
-  private Flux<Speech> recognizeUserSpeech(Flux<Speech> userSpeechFlux) {
-    return userSpeechFlux
-        .map(Speech::getAudio)
-        .transform(asr::recognize)
-        .map(recognized -> Speech.builder()
-            .speaker(Speaker.USER)
-            .text(recognized.getText())
-            .build());
+  private Flux<Speech> recognizeUserSpeech(Conversation conversation, Flux<Speech> userSpeechFlux) {
+    RecognizeContext context = new RecognizeContext();
+    Flux<Speech> recognizedFlux;
+    if (conversation.getUseAsr()) {
+      recognizedFlux = userSpeechFlux
+          .map(Speech::getAudio)
+          .transform(asr::recognize)
+          .map(recognized -> Speech.builder()
+              .speaker(Speaker.USER)
+              .text(recognized.getText())
+              .build());
+    } else {
+      recognizedFlux = userSpeechFlux;
+    }
+    return recognizedFlux
+      .doOnNext(context::setLastUserSpeech)
+      .doOnComplete(() -> conversation.addSpeech(context.getLastUserSpeech()));
   }
 
   private Flux<Speech> requestCoach(Conversation conversation) {
     Coach coach = conversation.getCoach();
     List<Message> messages = conversation.getMessages();
-
-    return llm.chat(coach.getModel(), messages)
-        .concatMap(text -> {
-          return tts.tts(coach.getVoice(), text)
-              .map(audio -> Speech.builder()
-                  .speaker(Speaker.COACH)
-                  .audio(audio)
-                  .text(text)
-                  .build());
-        });
+    Flux<String> coachAnswerFlux = llm.chat(coach.getModel(), messages);
+    if (conversation.getUseTts()) {
+      return coachAnswerFlux
+          .concatMap(text -> {
+            return tts.tts(coach.getVoice(), text)
+                .map(audio -> Speech.builder()
+                    .speaker(Speaker.COACH)
+                    .audio(audio)
+                    .text(text)
+                    .build());
+          });
+    } else {
+      return coachAnswerFlux
+          .map(text -> Speech.builder()
+              .speaker(Speaker.COACH)
+              .text(text)
+              .build());
+    }
   }
-
 }

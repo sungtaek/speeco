@@ -22,26 +22,6 @@ class Recorder {
         throw RecordingPermissionException('Microphone permission not granted');
       }
       await _recorder.openRecorder();
-      // _recorder.setSubscriptionDuration(Duration(milliseconds: 100));
-      // _recordingDataController = StreamController<Food>();
-      // _recordingDataSubscription = _recordingDataController.stream.listen((buffer) {
-      //   if (buffer is FoodData) {
-      //     onData(buffer.data);
-      //   }
-      // });
-      // _recordingEventSubscription = _recorder.onProgress.listen((event) {
-      //   double currentLevel = event.decibels ?? 0;
-      //   print('decibels: ${currentLevel}');
-      //   if (currentLevel < SILENCE_THRESHOLD) {
-      //     _silenceTimer ??= Timer(Duration(seconds: SILENCE_DURATION_SEC), () {
-      //       stop();
-      //       onEnd();
-      //     });
-      //   } else {
-      //     _silenceTimer?.cancel();
-      //     _silenceTimer = null;
-      //   }
-      // });
       _initialized = true;
     }
   }

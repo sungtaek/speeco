@@ -16,18 +16,21 @@ class _Conversation extends State<Conversation> {
   bool _isListening = false;
   int _audioSize = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    _recorder.init();
+  }
+
   void _listen() async {
     if (!_isListening) {
       setState(() {
         _audioSize = 0;
         _isListening = true;
       });
-      print('start');
-      await _recorder.init();
       await _recorder.start(_onAudio, _onEnd);
     } else {
       setState(() => _isListening = false);
-      print('stop');
       await _recorder.stop();
     }
   }
@@ -51,8 +54,7 @@ class _Conversation extends State<Conversation> {
         Container(
             height: 80,
             child: Row(children: [
-              // Lottie.asset('images/thinking2.json',
-                  // repeat: true, animate: true),
+              // Lottie.asset('images/thinking2.json', repeat: true, animate: true),
               // Lottie.asset('images/mic2.json', repeat: true, animate: true),
               Text('Audio: $_audioSize'),
               ElevatedButton(

@@ -69,7 +69,7 @@ sourceSets {
 			srcDir 'build/generated/source/proto/main/java'
 		}
 		proto {
-			srcDir 'src/main/resources/proto'
+			srcDir '../proto'
 		}
   }
   test {

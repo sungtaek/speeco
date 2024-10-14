@@ -24,4 +24,19 @@ public class Conversation {
     messages.add(new Message(speech.getSpeaker(), speech.getText()));
     return messages;
   }
+
+  public static Conversation DEFAULT = Conversation.builder()
+      .id("conv-0001")
+      .user(User.builder()
+          .name("user")
+          .build())
+      .coach(Coach.builder()
+          .name("coach")
+          .gender("M")
+          .model("teacher")
+          .language("en")
+          .voice("larynx:southern_english_male-glow_tts")
+          .build())
+      .messages(new ArrayList<>())
+      .build();
 }

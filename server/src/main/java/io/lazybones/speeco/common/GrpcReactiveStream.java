@@ -71,6 +71,15 @@ public class GrpcReactiveStream {
     return requestStreamObserver;
   }
 
+  public static <Req, Resp> StreamObserver<Req> bindClientStreaming(StreamObserver<Resp> responseObserver, Function<Flux<Req>, Mono<Resp>> handler) {
+    GrpcRequestStreamObserver<Req> requestStreamObserver = new GrpcRequestStreamObserver<>();
+    requestStreamObserver.getRequestFlux()
+        .transform(handler)
+        .last()
+        .subscribe(new GrpcResponseSubscriber<>(responseObserver));
+    return requestStreamObserver;
+  }
+
   public static <Resp> void bindServerStreaming(StreamObserver<Resp> responseObserver, Supplier<Flux<Resp>> handler) {
     handler.get()
         .subscribe(new GrpcResponseSubscriber<>(responseObserver));

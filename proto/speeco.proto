@@ -7,7 +7,7 @@ option java_outer_classname = "SpeecoProto";
 package speeco;
 
 service ASR {
-  rpc recognize(stream Audio) returns (stream Message);
+  rpc recognize(stream Audio) returns (Message);
 }
 
 service LLM {

@@ -1,7 +1,8 @@
 package io.lazybones.speeco.asr;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface ASR {
-  Flux<Recognized> recognize(Flux<byte[]> audio);
+  Mono<Recognized> recognize(Flux<byte[]> audio);
 }

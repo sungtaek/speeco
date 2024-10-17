@@ -13,6 +13,7 @@ import io.lazybones.speeco.asr.Recognized;
 import io.lazybones.speeco.common.Util;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Component
 @Slf4j
@@ -25,7 +26,7 @@ public class Whisper implements ASR {
   }
 
   @Override
-  public Flux<Recognized> recognize(Flux<byte[]> audio) {
+  public Mono<Recognized> recognize(Flux<byte[]> audio) {
     return audio
         .buffer()
         .map(Util::mergeBytes)
@@ -51,8 +52,7 @@ public class Whisper implements ASR {
                   .language(r.getLanguage())
                   .build());
         })
-        .doOnNext(s -> log.info("Receive from ASR: {}", s))
-        .flux();
+        .doOnNext(s -> log.info("Receive from ASR: {}", s));
   }
   
 }

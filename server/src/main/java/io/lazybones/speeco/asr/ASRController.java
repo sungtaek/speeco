@@ -24,15 +24,15 @@ public class ASRController extends ASRImplBase {
   @Override
   public StreamObserver<Audio> recognize(StreamObserver<Message> responseObserver) {
     Conversation conversation = Conversation.DEFAULT;
-    return GrpcReactiveStream.bindBidiStreaming(responseObserver, reqFlux -> {
+    return GrpcReactiveStream.bindClientStreaming(responseObserver, reqFlux -> {
       return reqFlux
           .doOnNext(r -> log.info("Receive: {}", Util.toLogString(r)))
           .mapNotNull(this::convertRequest)
           .transform(audioFlux -> asrService.recognize(conversation, audioFlux))
+          .last()
           .map(this::convertResponse)
           .doOnNext(r -> log.info("Return: {}", Util.toLogString(r)))
-          .doOnError(err -> log.error("Error: " + err.getMessage(), err))
-          .doOnComplete(() -> log.info("Completed"));
+          .doOnError(err -> log.error("Error: " + err.getMessage(), err));
     });
   }
 

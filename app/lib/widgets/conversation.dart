@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
+import '../core/asr.dart';
 import '../core/recorder.dart';
+import '../core/session.dart';
 
 class Conversation extends StatefulWidget {
   @override
@@ -13,8 +15,10 @@ class Conversation extends StatefulWidget {
 
 class _Conversation extends State<Conversation> {
   Recorder _recorder = Recorder();
+  ASR _asr = ASR(Session('192.168.1.105', 9090));
   bool _isListening = false;
   int _audioSize = 0;
+  String _text = '';
 
   @override
   void initState() {
@@ -28,19 +32,16 @@ class _Conversation extends State<Conversation> {
         _audioSize = 0;
         _isListening = true;
       });
-      await _recorder.start(_onAudio, _onEnd);
+      // _asr.recognize()
+      _recorder.start().listen((b) {
+        setState(() => _audioSize += b.length);
+      }, onDone: () {
+        setState(() => _isListening = false);
+      });
     } else {
       setState(() => _isListening = false);
       await _recorder.stop();
     }
-  }
-
-  void _onAudio(Uint8List buffer) {
-    setState(() => _audioSize += buffer.length);
-  }
-
-  void _onEnd() {
-    setState(() => _isListening = false);
   }
 
   @override

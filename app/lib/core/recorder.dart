@@ -4,14 +4,15 @@ import 'dart:typed_data';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-const double SILENCE_THRESHOLD = 20;
+const double SILENCE_THRESHOLD = 30;
 const int SILENCE_DURATION_SEC = 2;
 
 class Recorder {
   FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   bool _initialized = false;
 
-  StreamSubscription _recordingDataSubscription;
+  // StreamSubscription _recordingDataSubscription;
+  StreamController<Food> _recordingDataController;
   StreamSubscription _recordingEventSubscription;
   Timer _silenceTimer;
 
@@ -26,18 +27,13 @@ class Recorder {
     }
   }
 
-  Future<void> start(Function(Uint8List) onData, Function() onEnd) async {
+  Stream<Uint8List> start() {
     if (!_initialized) {
       throw Exception('Not initialized yet');
     }
     print('start recording');
     _recorder.setSubscriptionDuration(Duration(milliseconds: 100));
-    var recordingDataController = StreamController<Food>();
-    _recordingDataSubscription = recordingDataController.stream.listen((buffer) {
-      if (buffer is FoodData) {
-        onData(buffer.data);
-      }
-    });
+    _recordingDataController = StreamController<Food>();
     _recordingEventSubscription = _recorder.onProgress.listen((event) {
       double currentLevel = event.decibels ?? 0;
       print('decibels: ${currentLevel}');
@@ -45,17 +41,20 @@ class Recorder {
         _silenceTimer ??= Timer(Duration(seconds: SILENCE_DURATION_SEC), () {
           print('silence detected');
           stop();
-          onEnd();
         });
       } else {
         _silenceTimer?.cancel();
         _silenceTimer = null;
       }
     });
-    await _recorder.startRecorder(
+    _recorder.startRecorder(
       codec: Codec.pcm16,
-      toStream: recordingDataController.sink
+      toStream: _recordingDataController.sink
     );
+    return _recordingDataController.stream
+        .where((b) => b is FoodData)
+        .cast<FoodData>()
+        .map((b) => b.data);
   }
 
   Future<void> stop() async {
@@ -63,13 +62,18 @@ class Recorder {
       throw Exception('Not initialized yet');
     }
     print('stop recording');
-    if (_recordingDataSubscription != null) {
-      await _recordingDataSubscription.cancel();
-      _recordingDataSubscription = null;
-    }
+    // if (_recordingDataSubscription != null) {
+    //   await _recordingDataSubscription.cancel();
+    //   _recordingDataSubscription = null;
+    // }
+
     if (_recordingEventSubscription != null) {
       await _recordingEventSubscription.cancel();
       _recordingEventSubscription = null;
+    }
+    if (_recordingDataController != null) {
+      await _recordingDataController.close();
+      _recordingDataController = null;
     }
     await _recorder.stopRecorder();
   }

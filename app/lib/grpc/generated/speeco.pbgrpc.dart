@@ -24,9 +24,9 @@ class ASRClient extends $grpc.Client {
       $core.Iterable<$grpc.ClientInterceptor>? interceptors})
       : super(channel, options: options, interceptors: interceptors);
 
-  $grpc.ResponseStream<$0.Message> recognize($async.Stream<$0.Audio> request,
+  $grpc.ResponseFuture<$0.Message> recognize($async.Stream<$0.Audio> request,
       {$grpc.CallOptions? options}) {
-    return $createStreamingCall(_$recognize, request, options: options);
+    return $createStreamingCall(_$recognize, request, options: options).single;
   }
 }
 
@@ -38,12 +38,12 @@ abstract class ASRServiceBase extends $grpc.Service {
         'recognize',
         recognize,
         true,
-        true,
+        false,
         ($core.List<$core.int> value) => $0.Audio.fromBuffer(value),
         ($0.Message value) => value.writeToBuffer()));
   }
 
-  $async.Stream<$0.Message> recognize(
+  $async.Future<$0.Message> recognize(
       $grpc.ServiceCall call, $async.Stream<$0.Audio> request);
 }
 

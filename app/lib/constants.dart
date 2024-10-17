@@ -1,0 +1,5 @@
+
+enum Owner {
+  USER,
+  COACH,
+}

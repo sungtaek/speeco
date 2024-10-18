@@ -1,6 +1,7 @@
 package io.lazybones.speeco.asr.whisper;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -39,7 +40,13 @@ public class Whisper implements ASR {
           MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
           ByteArrayOutputStream bodyOutputStream = new ByteArrayOutputStream();
           writeAsWave(bodyOutputStream, 1, 16000, 16000, mergedAudio);
-          bodyBuilder.part("audio_file", new ByteArrayResource(bodyOutputStream.toByteArray()))
+          byte[] wave = bodyOutputStream.toByteArray();
+          try (FileOutputStream waveFile = new FileOutputStream("./test.wav")) {
+            waveFile.write(wave);
+          } catch (Exception ex) {
+            ex.printStackTrace();
+          }
+          bodyBuilder.part("audio_file", new ByteArrayResource(wave))
               .contentType(MediaType.valueOf("audio/wave"))
               .filename("sample.wav");
           log.info("Send to ASR: {} bytes", mergedAudio.length);

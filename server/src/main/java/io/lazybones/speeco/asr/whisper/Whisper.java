@@ -39,7 +39,7 @@ public class Whisper implements ASR {
         .flatMap(mergedAudio -> {
           MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
           ByteArrayOutputStream bodyOutputStream = new ByteArrayOutputStream();
-          writeAsWave(bodyOutputStream, 1, 16000, 16000, mergedAudio);
+          writeAsWave(bodyOutputStream, 1, 16000, 16, mergedAudio);
           byte[] wave = bodyOutputStream.toByteArray();
           try (FileOutputStream waveFile = new FileOutputStream("./test.wav")) {
             waveFile.write(wave);

@@ -12,14 +12,13 @@ import 'dart:typed_data' as $typed_data;
 const Owner$json = const {
   '1': 'Owner',
   '2': const [
-    const {'1': 'SYSTEM', '2': 0},
-    const {'1': 'USER', '2': 1},
-    const {'1': 'COACH', '2': 2},
+    const {'1': 'USER', '2': 0},
+    const {'1': 'COACH', '2': 1},
   ],
 };
 
 /// Descriptor for `Owner`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List ownerDescriptor = $convert.base64Decode('CgVPd25lchIKCgZTWVNURU0QABIICgRVU0VSEAESCQoFQ09BQ0gQAg==');
+final $typed_data.Uint8List ownerDescriptor = $convert.base64Decode('CgVPd25lchIICgRVU0VSEAASCQoFQ09BQ0gQAQ==');
 @$core.Deprecated('Use emptyDescriptor instead')
 const Empty$json = const {
   '1': 'Empty',

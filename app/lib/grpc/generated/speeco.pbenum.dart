@@ -10,12 +10,10 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class Owner extends $pb.ProtobufEnum {
-  static const Owner SYSTEM = Owner._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SYSTEM');
-  static const Owner USER = Owner._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'USER');
-  static const Owner COACH = Owner._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'COACH');
+  static const Owner USER = Owner._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'USER');
+  static const Owner COACH = Owner._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'COACH');
 
   static const $core.List<Owner> values = <Owner> [
-    SYSTEM,
     USER,
     COACH,
   ];

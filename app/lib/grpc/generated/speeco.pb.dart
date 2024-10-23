@@ -91,7 +91,7 @@ class Audio extends $pb.GeneratedMessage {
 
 class Message extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'speeco'), createEmptyInstance: create)
-    ..e<Owner>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'owner', $pb.PbFieldType.OE, defaultOrMaker: Owner.SYSTEM, valueOf: Owner.valueOf, enumValues: Owner.values)
+    ..e<Owner>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'owner', $pb.PbFieldType.OE, defaultOrMaker: Owner.USER, valueOf: Owner.valueOf, enumValues: Owner.values)
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'text')
     ..hasRequiredFields = false
   ;

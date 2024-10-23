@@ -27,9 +27,8 @@ message Audio {
 }
 
 enum Owner {
-  SYSTEM = 0;
-  USER = 1;
-  COACH = 2;
+  USER = 0;
+  COACH = 1;
 }
 
 message Message {

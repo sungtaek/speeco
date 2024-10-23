@@ -69,7 +69,6 @@ public class LLMController extends LLMImplBase {
 
   private io.lazybones.speeco.grpc.Owner convertOwner(Owner owner) {
     switch(owner) {
-      case SYSTEM: return io.lazybones.speeco.grpc.Owner.SYSTEM;
       case USER: return io.lazybones.speeco.grpc.Owner.USER;
       case COACH: return io.lazybones.speeco.grpc.Owner.COACH;
       default: return io.lazybones.speeco.grpc.Owner.UNRECOGNIZED;

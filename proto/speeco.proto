@@ -4,7 +4,6 @@ option java_multiple_files = true;
 option java_package = "io.lazybones.speeco.grpc";
 option java_outer_classname = "SpeecoProto";
 
-import "google/protobuf/empty.proto";
 package speeco;
 
 service ASR {
@@ -12,12 +11,15 @@ service ASR {
 }
 
 service LLM {
-  rpc create(google.protobuf.Empty) returns (Conversation);
+  rpc create(Empty) returns (Conversation);
   rpc chat(Message) returns (stream Message);
 }
 
 service TTS {
   rpc convert(Message) returns (Audio);
+}
+
+message Empty {
 }
 
 message Audio {

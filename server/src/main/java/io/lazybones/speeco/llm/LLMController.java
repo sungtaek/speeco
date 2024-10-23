@@ -2,8 +2,6 @@ package io.lazybones.speeco.llm;
 
 import org.springframework.stereotype.Controller;
 
-import com.google.protobuf.Empty;
-
 import io.grpc.stub.StreamObserver;
 import io.lazybones.speeco.common.GrpcInterceptor;
 import io.lazybones.speeco.common.GrpcMetadataInterceptor;
@@ -31,7 +29,8 @@ public class LLMController extends LLMImplBase {
   }
 
   @Override
-  public void create(Empty empty, StreamObserver<io.lazybones.speeco.grpc.Conversation> responseObserver) {
+  public void create(io.lazybones.speeco.grpc.Empty empty,
+      StreamObserver<io.lazybones.speeco.grpc.Conversation> responseObserver) {
     GrpcReactiveStream.bindUnary(responseObserver, () -> {
       return Mono.just(llmService.createConversation())
           .map(c -> io.lazybones.speeco.grpc.Conversation.newBuilder()

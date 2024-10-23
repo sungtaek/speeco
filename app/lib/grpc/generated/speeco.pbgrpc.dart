@@ -48,6 +48,10 @@ abstract class ASRServiceBase extends $grpc.Service {
 }
 
 class LLMClient extends $grpc.Client {
+  static final _$create = $grpc.ClientMethod<$0.Empty, $0.Conversation>(
+      '/speeco.LLM/create',
+      ($0.Empty value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Conversation.fromBuffer(value));
   static final _$chat = $grpc.ClientMethod<$0.Message, $0.Message>(
       '/speeco.LLM/chat',
       ($0.Message value) => value.writeToBuffer(),
@@ -57,6 +61,11 @@ class LLMClient extends $grpc.Client {
       {$grpc.CallOptions? options,
       $core.Iterable<$grpc.ClientInterceptor>? interceptors})
       : super(channel, options: options, interceptors: interceptors);
+
+  $grpc.ResponseFuture<$0.Conversation> create($0.Empty request,
+      {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$create, request, options: options);
+  }
 
   $grpc.ResponseStream<$0.Message> chat($0.Message request,
       {$grpc.CallOptions? options}) {
@@ -69,6 +78,13 @@ abstract class LLMServiceBase extends $grpc.Service {
   $core.String get $name => 'speeco.LLM';
 
   LLMServiceBase() {
+    $addMethod($grpc.ServiceMethod<$0.Empty, $0.Conversation>(
+        'create',
+        create_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
+        ($0.Conversation value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.Message, $0.Message>(
         'chat',
         chat_Pre,
@@ -78,11 +94,18 @@ abstract class LLMServiceBase extends $grpc.Service {
         ($0.Message value) => value.writeToBuffer()));
   }
 
+  $async.Future<$0.Conversation> create_Pre(
+      $grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
+    return create(call, await request);
+  }
+
   $async.Stream<$0.Message> chat_Pre(
       $grpc.ServiceCall call, $async.Future<$0.Message> request) async* {
     yield* chat(call, await request);
   }
 
+  $async.Future<$0.Conversation> create(
+      $grpc.ServiceCall call, $0.Empty request);
   $async.Stream<$0.Message> chat($grpc.ServiceCall call, $0.Message request);
 }
 

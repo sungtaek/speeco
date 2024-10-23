@@ -10,17 +10,12 @@ class ASR {
   ASRClient _asrStub;
 
   ASR(Session session) {
-    var channel = ClientChannel(
-      session.getHost,
-      port: session.getPort,
-      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
-    );
-    this._asrStub = ASRClient(channel);
+    this._asrStub = ASRClient(session.getChannel);
   }
   
   Future<String> recognize(Stream<Uint8List> audio) async {
     return _asrStub
-        .recognize(audio.map<Audio>((a) => new Audio(pcm: a)))
+        .recognize(audio.map<Audio>((a) => Audio(pcm: a)))
         .then((m) => m.text);
   }
 }

@@ -1,21 +1,24 @@
 
+import 'package:grpc/grpc.dart';
+
 class Session {
-  String _host;
-  int _port;
+  ClientChannel _channel;
   String _token;
 
-  Session(this._host, this._port);
+  Session(String host, int port) {
+    this._channel = ClientChannel(
+      host,
+      port: port,
+      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+    );
+  }
 
   Future<void> login(String userId, String password) async {
     // TODO
   }
 
-  String get getHost {
-    return _host;
-  }
-
-  int get getPort {
-    return _port;
+  ClientChannel get getChannel {
+    return _channel;
   }
 
   String get getToken {

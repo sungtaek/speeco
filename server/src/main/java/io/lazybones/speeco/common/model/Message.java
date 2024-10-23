@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class Message {
-  private Speaker speaker;
+  private Owner owner;
   private String text;
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import io.lazybones.speeco.common.model.Message;
-import io.lazybones.speeco.common.model.Speaker;
+import io.lazybones.speeco.common.model.Owner;
 import io.lazybones.speeco.llm.LLM;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -36,7 +36,7 @@ public class Ollama implements LLM {
         .model(model)
         .messages(messages.stream()
             .map(c -> ChatMessage.builder()
-                .role(c.getSpeaker() == Speaker.USER ? "user" : "assistant")
+                .role(c.getOwner() == Owner.COACH ? "assistant" : "user")
                 .content(c.getText())
                 .build())
             .toList())

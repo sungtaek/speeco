@@ -19,12 +19,11 @@ public class Conversation {
   private Boolean useAsr = false;
   @Default
   private Boolean useTts = false;
-  
-  public List<Message> addSpeech(Speech speech) {
-    messages.add(new Message(speech.getSpeaker(), speech.getText()));
-    return messages;
-  }
 
+  public void addMessage(Message message) {
+    messages.add(message);
+  }
+  
   public static Conversation DEFAULT = Conversation.builder()
       .id("conv-0001")
       .user(User.builder()

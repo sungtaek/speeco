@@ -1,6 +1,6 @@
 package io.lazybones.speeco.common.model;
 
-public enum Speaker {
+public enum Owner {
   SYSTEM,
   USER,
   COACH,

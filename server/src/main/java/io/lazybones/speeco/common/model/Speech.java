@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Speech {
-  private Speaker speaker;
+  private Owner speaker;
   private byte[] audio;
   private String text;
 }

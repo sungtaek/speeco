@@ -24,7 +24,7 @@ class Chat {
   static Future<Chat> create(Session session) async {
     var llmStub = pb.LLMClient(session.getChannel);
     var conversation = await llmStub.create(pb.Empty());
-    return Chat._(session, conversation.id, conversation.messages.map((m) => convertMessage(m)));
+    return Chat._(session, conversation.id, conversation.messages.map((m) => convertMessage(m)).toList());
   }
 
   static Future<Chat> load(Session session, String convId) async {

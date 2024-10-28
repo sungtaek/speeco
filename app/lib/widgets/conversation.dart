@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
@@ -42,7 +41,7 @@ class _Conversation extends State<Conversation> {
   @override
   void initState() {
     super.initState();
-    var session = Session('192.168.1.105', 9090);
+    var session = Session('dev-sungtaek.kro.kr', 9090);
     _asr = ASR(session);
     _tts = TTS(session);
     Chat.create(session).then((c) => _chat = c);

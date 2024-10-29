@@ -1,20 +1,28 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../grpc/generated/speeco.pbgrpc.dart';
+import 'session.dart';
 
 const double SILENCE_THRESHOLD = 30;
 const int SILENCE_DURATION_SEC = 2;
 
 class Recorder {
-  FlutterSoundRecorder _recorder = FlutterSoundRecorder();
-  bool _initialized = false;
+  FlutterSoundRecorder _recorder;
+  ASRClient _asrStub;
+  bool _initialized;
 
-  // StreamSubscription _recordingDataSubscription;
   StreamController<Food> _recordingDataController;
   StreamSubscription _recordingEventSubscription;
   Timer _silenceTimer;
+
+  Recorder(Session session) {
+    this._recorder = FlutterSoundRecorder();
+    this._asrStub = ASRClient(session.getChannel);
+    this._initialized = false;
+  }
 
   Future<void> init() async {
     if (!_initialized) {
@@ -27,7 +35,7 @@ class Recorder {
     }
   }
 
-  Stream<Uint8List> start() {
+  Future<String> start() async {
     if (!_initialized) {
       throw Exception('Not initialized yet');
     }
@@ -51,10 +59,12 @@ class Recorder {
       codec: Codec.pcm16,
       toStream: _recordingDataController.sink
     );
-    return _recordingDataController.stream
+    var audioStream = _recordingDataController.stream
         .where((b) => b is FoodData)
         .cast<FoodData>()
         .map((b) => b.data);
+    var message = await _asrStub.recognize(audioStream.map<Audio>((a) => Audio(pcm: a)));
+    return message.text;
   }
 
   Future<void> stop() async {
@@ -62,10 +72,6 @@ class Recorder {
       throw Exception('Not initialized yet');
     }
     print('stop recording');
-    // if (_recordingDataSubscription != null) {
-    //   await _recordingDataSubscription.cancel();
-    //   _recordingDataSubscription = null;
-    // }
 
     if (_recordingEventSubscription != null) {
       await _recordingEventSubscription.cancel();

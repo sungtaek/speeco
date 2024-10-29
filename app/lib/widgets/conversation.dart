@@ -2,12 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-import '../constants.dart';
-import '../core/asr.dart';
 import '../core/chat.dart';
 import '../core/recorder.dart';
 import '../core/session.dart';
-import '../core/tts.dart';
 import '../theme.dart';
 
 class Conversation extends StatefulWidget {
@@ -29,9 +26,7 @@ class MessageBox {
 }
 
 class _Conversation extends State<Conversation> {
-  Recorder _recorder = Recorder();
-  ASR _asr;
-  TTS _tts;
+  Recorder _recorder;
   Chat _chat;
   bool _isListening = false;
   List<MessageBox> _messages = <MessageBox>[];
@@ -42,8 +37,7 @@ class _Conversation extends State<Conversation> {
   void initState() {
     super.initState();
     var session = Session('dev-sungtaek.kro.kr', 9090);
-    _asr = ASR(session);
-    _tts = TTS(session);
+    _recorder = Recorder(session);
     Chat.create(session).then((c) => _chat = c);
     _recorder.init();
   }
@@ -53,8 +47,7 @@ class _Conversation extends State<Conversation> {
       setState(() {
         _isListening = true;
       });
-      var record = _recorder.start();
-      _asr.recognize(record).then((t) {
+      _recorder.start().then((t) {
         setState(() {
           _messages.add(MessageBox('User', t));
           _toBottom = true;

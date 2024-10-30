@@ -4,12 +4,6 @@ import '../constants.dart';
 import '../grpc/generated/speeco.pbgrpc.dart' as pb;
 import './session.dart';
 
-class Message {
-  Owner owner;
-  String text;
-  Message(this.owner, this.text);
-}
-
 class Chat {
   pb.LLMClient _llmStub;
   String _convId;

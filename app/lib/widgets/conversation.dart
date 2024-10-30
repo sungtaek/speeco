@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:app/core/player.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -35,6 +37,8 @@ class _Conversation extends State<Conversation> {
 
   void _listen() {
     if (!_isListening) {
+      var playController = StreamController<String>();
+      playBackground(playController.stream);
       setState(() {
         _isListening = true;
       });
@@ -45,12 +49,13 @@ class _Conversation extends State<Conversation> {
         });
         _chat.sendMessage(t).listen((m) {
           setState(() {
-            _player.play(m.text);
+            playController.add(m.text);
             _messages.add(Message(Owner.COACH, m.text));
             _toBottom = true;
           });
         }, onDone: () {
           setState(() {
+            playController.close();
             _isListening = false;
           });
         });
@@ -61,6 +66,13 @@ class _Conversation extends State<Conversation> {
           _isListening = false;
         });
       });
+    }
+  }
+
+  Future<void> playBackground(Stream<String> texts) async {
+    await for (var text in texts) {
+      print("play: ${text}");
+      await _player.play(text);
     }
   }
 

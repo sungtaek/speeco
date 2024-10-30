@@ -16,6 +16,7 @@ dependencies:
   lottie: ^2.3.2
   permission_handler: ^11.0.1
   protobuf: ^2.1.0
+  remove_emoji: ^0.0.10
 
 dev_dependencies:
   flutter_test:

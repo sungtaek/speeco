@@ -28,20 +28,7 @@ class MessageBox {
 }
 
 class _ConversationChat extends State<ConversationChat> {
-  List<MessageBox> _messageBoxes = <MessageBox>[];
   ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    for (var msg in widget.messages) {
-      if (_messageBoxes.isNotEmpty && _messageBoxes.last.owner == msg.owner) {
-        _messageBoxes.last.addSentence(msg.text);
-      } else {
-        _messageBoxes.add(MessageBox(msg.owner, msg.text));
-      }
-    }
-  }
 
   Widget buildMessageBox(MessageBox messageBox) {
     Color boxColor;
@@ -64,10 +51,19 @@ class _ConversationChat extends State<ConversationChat> {
 
   @override
   Widget build(BuildContext context) {
+    print("conversation-chat: ${widget.messages.length}");
+    List<MessageBox> messageBoxes = <MessageBox>[];
+    for (var msg in widget.messages) {
+      if (messageBoxes.isNotEmpty && messageBoxes.last.owner == msg.owner) {
+        messageBoxes.last.addSentence(msg.text);
+      } else {
+        messageBoxes.add(MessageBox(msg.owner, msg.text));
+      }
+    }
     return ListView.builder(
         padding: EdgeInsets.all(8),
         controller: _scrollController,
-        itemCount: _messageBoxes.length,
+        itemCount: messageBoxes.length,
         itemBuilder: (BuildContext context, int idx) {
           if (widget.toBottom) {
             WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -77,7 +73,7 @@ class _ConversationChat extends State<ConversationChat> {
                   curve: Curves.easeInOut);
             });
           }
-          return buildMessageBox(_messageBoxes[idx]);
+          return buildMessageBox(messageBoxes[idx]);
         });
   }
 }

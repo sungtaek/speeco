@@ -17,6 +17,7 @@ dependencies:
   permission_handler: ^11.0.1
   protobuf: ^2.1.0
   remove_emoji: ^0.0.10
+  speech_to_text: ^6.1.1
 
 dev_dependencies:
   flutter_test:

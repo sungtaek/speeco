@@ -3,13 +3,14 @@ import 'dart:async';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../grpc/generated/speeco.pbgrpc.dart';
-import 'session.dart';
+import '../../grpc/generated/speeco.pbgrpc.dart';
+import '../session.dart';
+import 'recorder.dart';
 
 const double SILENCE_THRESHOLD = 30;
 const int SILENCE_DURATION_SEC = 2;
 
-class Recorder {
+class ServerRecorder implements Recorder {
   FlutterSoundRecorder _recorder;
   ASRClient _asrStub;
   bool _initialized;
@@ -18,7 +19,7 @@ class Recorder {
   StreamSubscription _recordingEventSubscription;
   Timer _silenceTimer;
 
-  Recorder(Session session) {
+  ServerRecorder(Session session) {
     this._recorder = FlutterSoundRecorder();
     this._asrStub = ASRClient(session.getChannel);
     this._initialized = false;

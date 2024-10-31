@@ -1,13 +1,15 @@
 
 import 'dart:async';
 
-import 'package:app/core/player.dart';
+import 'package:app/core/player/ondevice-player.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 import '../constants.dart';
 import '../core/chat.dart';
-import '../core/recorder.dart';
+import '../core/player/player.dart';
+import '../core/recorder/ondevice-recorder.dart';
+import '../core/recorder/recorder.dart';
 import '../core/session.dart';
 import 'conversation-chat.dart';
 
@@ -29,9 +31,9 @@ class _Conversation extends State<Conversation> {
     super.initState();
     var session = Session('dev-sungtaek.kro.kr', 9090);
     Chat.create(session).then((c) => _chat = c);
-    _recorder = Recorder(session);
+    _recorder = OndeviceRecorder();
     _recorder.init();
-    _player = Player(session);
+    _player = OndevicePlayer();
     _player.init();
   }
 

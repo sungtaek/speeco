@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart';
 import '../theme.dart';
+import 'common/boldable-text.dart';
 
 class ConversationChat extends StatefulWidget {
   final List<Message> messages;
@@ -46,7 +47,7 @@ class _ConversationChat extends State<ConversationChat> {
         margin: boxMargin,
         alignment: Alignment.centerLeft,
         child: Column(
-            children: messageBox.sentences.map((s) => Text(s)).toList()));
+            children: messageBox.sentences.map((s) => BoldableText(s)).toList()));
   }
 
   @override

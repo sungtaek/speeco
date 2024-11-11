@@ -19,11 +19,17 @@ class Conversation extends StatefulWidget {
   _Conversation createState() => _Conversation();
 }
 
+enum ChatStatus {
+  NONE,
+  LISTENING,
+  PROCESSING,
+}
+
 class _Conversation extends State<Conversation> {
   Chat _chat;
   Recorder _recorder;
   Player _player;
-  bool _isListening = false;
+  ChatStatus _status = ChatStatus.NONE;
   List<Message> _messages = <Message>[];
   bool _toBottom = false;
 
@@ -39,16 +45,17 @@ class _Conversation extends State<Conversation> {
   }
 
   void _listen() {
-    if (!_isListening) {
+    if (_status == ChatStatus.NONE) {
       var playController = StreamController<String>();
       playBackground(playController.stream);
       setState(() {
-        _isListening = true;
+        _status = ChatStatus.LISTENING;
       });
       _recorder.start().then((t) {
         setState(() {
           _messages.add(Message(Owner.USER, t));
           _toBottom = true;
+          _status = ChatStatus.PROCESSING;
         });
         _chat.sendMessage(t).listen((m) {
           setState(() {
@@ -59,16 +66,12 @@ class _Conversation extends State<Conversation> {
         }, onDone: () {
           setState(() {
             playController.close();
-            _isListening = false;
+            _status = ChatStatus.NONE;
           });
         });
       });
-    } else {
-      _recorder.stop().then((_) {
-        setState(() {
-          _isListening = false;
-        });
-      });
+    } else if (_status == ChatStatus.LISTENING) {
+      _recorder.stop();
     }
   }
 
@@ -76,6 +79,26 @@ class _Conversation extends State<Conversation> {
     await for (var text in texts) {
       print("play: ${text}");
       await _player.play(text);
+    }
+  }
+
+  Widget buildButton() {
+    switch(_status) {
+      case ChatStatus.NONE:
+        return TextButton(
+            onPressed: _listen,
+            child: Lottie.asset('assets/images/mic_icon.json',
+                height: 80, repeat: false, animate: false));
+      case ChatStatus.LISTENING:
+        return TextButton(
+            onPressed: _listen,
+            child: Lottie.asset('assets/images/mic_icon.json',
+                height: 80, repeat: true, animate: true));
+      case ChatStatus.PROCESSING:
+        return TextButton(
+            onPressed: _listen,
+            child: Lottie.asset('assets/images/progress_icon.json',
+                height: 80, repeat: true, animate: true));
     }
   }
 
@@ -87,17 +110,7 @@ class _Conversation extends State<Conversation> {
         Expanded(
             child: ConversationChat(messages: _messages, toBottom: _toBottom)),
         Container(
-            height: 120,
-            child: Column(children: [
-              TextButton(
-                onPressed: _listen,
-                child: Lottie.asset('assets/images/mic_icon.json', width: 80, height: 80, repeat: true, animate: _isListening)
-              ),
-              // ElevatedButton(
-              //   onPressed: _listen,
-              //   child: Text(_isListening ? 'Stop Listening' : 'Start Listening'),
-              // ),
-            ]))
+            height: 120, child: Column(children: [buildButton()]))
       ]),
     );
   }

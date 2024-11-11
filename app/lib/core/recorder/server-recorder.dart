@@ -7,7 +7,7 @@ import '../../grpc/generated/speeco.pbgrpc.dart';
 import '../session.dart';
 import 'recorder.dart';
 
-const double SILENCE_THRESHOLD = 30;
+const double SILENCE_THRESHOLD = 55;
 const int SILENCE_DURATION_SEC = 2;
 
 class ServerRecorder implements Recorder {

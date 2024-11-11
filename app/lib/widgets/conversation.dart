@@ -10,6 +10,7 @@ import '../core/chat.dart';
 import '../core/player/player.dart';
 import '../core/recorder/ondevice-recorder.dart';
 import '../core/recorder/recorder.dart';
+import '../core/recorder/server-recorder.dart';
 import '../core/session.dart';
 import 'conversation-chat.dart';
 
@@ -31,7 +32,7 @@ class _Conversation extends State<Conversation> {
     super.initState();
     var session = Session('dev-sungtaek.kro.kr', 9090);
     Chat.create(session).then((c) => _chat = c);
-    _recorder = OndeviceRecorder();
+    _recorder = ServerRecorder(session);
     _recorder.init();
     _player = OndevicePlayer();
     _player.init();
@@ -86,14 +87,16 @@ class _Conversation extends State<Conversation> {
         Expanded(
             child: ConversationChat(messages: _messages, toBottom: _toBottom)),
         Container(
-            height: 80,
+            height: 120,
             child: Column(children: [
-              // Lottie.asset('images/thinking2.json', repeat: true, animate: true),
-              // Lottie.asset('images/mic2.json', repeat: true, animate: true),
-              ElevatedButton(
+              TextButton(
                 onPressed: _listen,
-                child: Text(_isListening ? 'Stop Listening' : 'Start Listening'),
+                child: Lottie.asset('assets/images/mic_icon.json', width: 80, height: 80, repeat: true, animate: _isListening)
               ),
+              // ElevatedButton(
+              //   onPressed: _listen,
+              //   child: Text(_isListening ? 'Stop Listening' : 'Start Listening'),
+              // ),
             ]))
       ]),
     );

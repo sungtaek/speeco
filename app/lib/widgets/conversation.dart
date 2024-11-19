@@ -37,7 +37,8 @@ class _Conversation extends State<Conversation> {
   void initState() {
     super.initState();
     var session = Session('dev-sungtaek.kro.kr', 9090);
-    Chat.create(session).then((c) => _chat = c);
+    _chat = Chat(session);
+    _chat.create();
     _recorder = ServerRecorder(session);
     _recorder.init();
     _player = OndevicePlayer();

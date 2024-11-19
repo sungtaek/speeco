@@ -9,21 +9,19 @@ class Chat {
   String _convId;
   List<Message> _messages;
   
-  Chat._(Session session, String convId, List<Message> messages) {
+  Chat(Session session) {
     this._llmStub = pb.LLMClient(session.getChannel);
+  }
+
+  Future<void> create() async {
+    var conversation = await _llmStub.create(pb.Empty());
+    this._convId = conversation.id;
+    this._messages = conversation.messages.map((m) => convertMessage(m)).toList();
+  }
+
+  Future<void> load(String convId) async {
     this._convId = convId;
-    this._messages = messages;
-  }
-
-  static Future<Chat> create(Session session) async {
-    var llmStub = pb.LLMClient(session.getChannel);
-    var conversation = await llmStub.create(pb.Empty());
-    return Chat._(session, conversation.id, conversation.messages.map((m) => convertMessage(m)).toList());
-  }
-
-  static Future<Chat> load(Session session, String convId) async {
     // TODO
-    return new Chat._(session, convId, <Message>[]);
   }
 
   static Message convertMessage(pb.Message message) {

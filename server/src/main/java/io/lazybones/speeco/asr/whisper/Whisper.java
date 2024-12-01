@@ -53,6 +53,8 @@ public class Whisper implements ASR {
           return client.post()
               .uri(builder -> builder
                   .path("/asr")
+                  .queryParam("task", "transcribe")
+                  .queryParam("language", "en")
                   .queryParam("output", "json")
                   .build())
               .contentType(MediaType.MULTIPART_FORM_DATA)

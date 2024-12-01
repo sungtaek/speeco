@@ -1,46 +1,105 @@
 
-import 'dart:typed_data';
+import 'dart:async';
 
+import 'package:app/core/player/ondevice-player.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-import '../core/asr.dart';
-import '../core/recorder.dart';
+import '../constants.dart';
+import '../core/chat.dart';
+import '../core/player/player.dart';
+import '../core/recorder/ondevice-recorder.dart';
+import '../core/recorder/recorder.dart';
+import '../core/recorder/server-recorder.dart';
 import '../core/session.dart';
+import 'conversation-chat.dart';
 
 class Conversation extends StatefulWidget {
   @override
   _Conversation createState() => _Conversation();
 }
 
+enum ChatStatus {
+  NONE,
+  LISTENING,
+  PROCESSING,
+}
+
 class _Conversation extends State<Conversation> {
-  Recorder _recorder = Recorder();
-  ASR _asr = ASR(Session('192.168.1.105', 9090));
-  bool _isListening = false;
-  int _audioSize = 0;
-  String _text = '';
+  Chat _chat;
+  Recorder _recorder;
+  Player _player;
+  ChatStatus _status = ChatStatus.NONE;
+  List<Message> _messages = <Message>[];
+  bool _toBottom = false;
 
   @override
   void initState() {
     super.initState();
+    var session = Session('dev-sungtaek.kro.kr', 9090);
+    _chat = Chat(session);
+    _chat.create();
+    _recorder = ServerRecorder(session);
     _recorder.init();
+    _player = OndevicePlayer();
+    _player.init();
   }
 
-  void _listen() async {
-    if (!_isListening) {
+  void _listen() {
+    if (_status == ChatStatus.NONE) {
+      var playController = StreamController<String>();
+      playBackground(playController.stream);
       setState(() {
-        _audioSize = 0;
-        _isListening = true;
+        _status = ChatStatus.LISTENING;
       });
-      // _asr.recognize()
-      _recorder.start().listen((b) {
-        setState(() => _audioSize += b.length);
-      }, onDone: () {
-        setState(() => _isListening = false);
+      _recorder.start().then((t) {
+        setState(() {
+          _messages.add(Message(Owner.USER, t));
+          _toBottom = true;
+          _status = ChatStatus.PROCESSING;
+        });
+        _chat.sendMessage(t).listen((m) {
+          setState(() {
+            playController.add(m.text);
+            _messages.add(Message(Owner.COACH, m.text));
+            _toBottom = true;
+          });
+        }, onDone: () {
+          setState(() {
+            playController.close();
+            _status = ChatStatus.NONE;
+          });
+        });
       });
-    } else {
-      setState(() => _isListening = false);
-      await _recorder.stop();
+    } else if (_status == ChatStatus.LISTENING) {
+      _recorder.stop();
+    }
+  }
+
+  Future<void> playBackground(Stream<String> texts) async {
+    await for (var text in texts) {
+      print("play: ${text}");
+      await _player.play(text);
+    }
+  }
+
+  Widget buildButton() {
+    switch(_status) {
+      case ChatStatus.NONE:
+        return TextButton(
+            onPressed: _listen,
+            child: Lottie.asset('assets/images/mic_icon.json',
+                height: 80, repeat: false, animate: false));
+      case ChatStatus.LISTENING:
+        return TextButton(
+            onPressed: _listen,
+            child: Lottie.asset('assets/images/mic_icon.json',
+                height: 80, repeat: true, animate: true));
+      case ChatStatus.PROCESSING:
+        return TextButton(
+            onPressed: _listen,
+            child: Lottie.asset('assets/images/progress_icon.json',
+                height: 80, repeat: true, animate: true));
     }
   }
 
@@ -50,19 +109,9 @@ class _Conversation extends State<Conversation> {
       padding: EdgeInsets.only(left: 24.0, right: 24.0),
       child: Column(children: [
         Expanded(
-          child: SingleChildScrollView(child: Text("Body")),
-        ),
+            child: ConversationChat(messages: _messages, toBottom: _toBottom)),
         Container(
-            height: 80,
-            child: Row(children: [
-              // Lottie.asset('images/thinking2.json', repeat: true, animate: true),
-              // Lottie.asset('images/mic2.json', repeat: true, animate: true),
-              Text('Audio: $_audioSize'),
-              ElevatedButton(
-                onPressed: _listen,
-                child: Text(_isListening ? 'Stop Listening' : 'Start Listening'),
-              ),
-            ]))
+            height: 120, child: Column(children: [buildButton()]))
       ]),
     );
   }

@@ -1,45 +1,47 @@
 import 'package:grpc/grpc.dart';
 
 import '../constants.dart';
-import '../grpc/generated/speeco.pbgrpc.dart';
+import '../grpc/generated/speeco.pbgrpc.dart' as pb;
 import './session.dart';
 
-class Message {
-  Owner owner;
-  List<String> text;
-}
-
 class Chat {
-  LLMClient _llmStub;
+  pb.LLMClient _llmStub;
   String _convId;
   List<Message> _messages;
   
-  Chat._(Session session, String convId) {
-    var channel = ClientChannel(
-      session.getHost,
-      port: session.getPort,
-      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
-    );
-    this._llmStub = LLMClient(channel);
+  Chat(Session session) {
+    this._llmStub = pb.LLMClient(session.getChannel);
+  }
+
+  Future<void> create() async {
+    var conversation = await _llmStub.create(pb.Empty());
+    this._convId = conversation.id;
+    this._messages = conversation.messages.map((m) => convertMessage(m)).toList();
+  }
+
+  Future<void> load(String convId) async {
     this._convId = convId;
+    // TODO
   }
 
-  static Future<Chat> create(Session session) async {
-    // TODO
-    return new Chat._(session, "dummy");
-  }
-
-  static Future<Chat> load(Session session, String convId) async {
-    // TODO
-    return new Chat._(session, convId);
+  static Message convertMessage(pb.Message message) {
+    var owner = (message.owner == pb.Owner.COACH) ? Owner.COACH : Owner.USER;
+    return Message(owner, message.text);
   }
 
   List<Message> get getMessages {
     return _messages;
   }
 
-  Stream<String> sendMessage(String text) async* {
-    // TODO
+  Stream<Message> sendMessage(String text) {
+    return _llmStub
+        .chat(pb.Message(text: text),
+            options: CallOptions(metadata: {'conv-id': _convId}))
+        .map((m) {
+          var msg = convertMessage(m);
+          _messages.add(msg);
+          return msg;
+        });
   }
 
 }

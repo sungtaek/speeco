@@ -23,6 +23,7 @@ public class ASRController extends ASRImplBase {
 
   @Override
   public StreamObserver<Audio> recognize(StreamObserver<Message> responseObserver) {
+    log.info("Call asr recognize!");
     Conversation conversation = Conversation.DEFAULT;
     return GrpcReactiveStream.bindClientStreaming(responseObserver, reqFlux -> {
       return reqFlux
